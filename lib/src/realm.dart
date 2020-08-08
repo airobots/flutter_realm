@@ -158,6 +158,12 @@ class Realm {
   }
 
   Future<String> filePath() => _invokeMethod('filePath');
+  
+  static Future<dynamic> invokeMethod(String method, {Realm realm, dynamic arguments}) async {
+    final r = realm ?? Realm._();
+    dynamic result = await r._invokeMethod(method, arguments);
+    return realm == null ? r : result;
+  }
 
   @override
   bool operator ==(Object other) =>
@@ -218,10 +224,18 @@ class Query {
 
 class Configuration {
   final String inMemoryIdentifier;
+  final String fileURL;
 
-  const Configuration({this.inMemoryIdentifier});
+  const Configuration({this.inMemoryIdentifier, this.fileURL});
 
-  Map<String, String> toMap() => {'inMemoryIdentifier': inMemoryIdentifier};
+  Map<String, String> toMap() {
+    if (this.inMemoryIdentifier != null)
+      return {'inMemoryIdentifier': this.inMemoryIdentifier};
+    else if (this.fileURL != null)
+      return {'filePath': this.fileURL};
+    else
+      return {};
+  }
 
   static const Configuration defaultConfiguration = const Configuration();
 }
